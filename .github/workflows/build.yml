@@ -17,6 +17,7 @@ jobs:
         run: |
           echo "update_version=$(date -d '+8 hours' +%Y-%m-%d)" >> ${GITHUB_ENV}
           echo "ads=https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-clash.yaml" >> $GITHUB_ENV
+          echo "tencent=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Tencent/Tencent.yaml" >> $GITHUB_ENV
           echo "private1=https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/private" >> $GITHUB_ENV
           echo "private2=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Lan/Lan.list" >> $GITHUB_ENV
           echo "microsoft_cn=https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/microsoft" >> $GITHUB_ENV
@@ -105,6 +106,21 @@ jobs:
           curl -sSL ${ads} | grep -Ev '#|payload:' | sed '/^\s*$/d' | sed "s/- '+\./+\./" | sed "s/- '//" | sed "s/'$//" | sed 's/^[ \t]*//' > ./clash-ruleset/ads.list
           # Download sing-box rule_set
           curl -sSL ${ads} | grep -v '#' | sed '/^\s*$/d' | sed "s/'$//" | sed "s/'+\./DOMAIN-SUFFIX,/" | sed "s/'/DOMAIN,/" > ./tmp/sing-box/rules/ads/ads.yaml
+
+      - name: Generate tencent
+        run: |
+          mkdir -p ./tmp/sing-box/rules/tencent/
+          # Download clash geodata
+          curl -sSL ${tencent} | perl -ne '/^server=\/([^\/]+)\// && print "full:$1\n"' > ./community/mydata/tencent
+          # Download clash rule-set_yaml
+          echo 'payload:' > ./clash-ruleset/tencent.yaml
+          curl -sSL ${tencent} | perl -ne '/^server=\/([^\/]+)\// && print "  - '\''$1\n"' | sed "s/$/'/" >> ./clash-ruleset/tencent.yaml
+          # Download clash rule-set_text
+          curl -sSL ${tencent} | perl -ne '/^server=\/([^\/]+)\// && print "$1\n"' > ./clash-ruleset/tencent.list
+          # Download sing-box rule_set
+          echo 'payload:' > ./tmp/sing-box/rules/tencent/tencent.yaml
+          curl -sSL ${tencent} | perl -ne '/^server=\/([^\/]+)\// && print "  - DOMAIN,$1\n"' >> ./tmp/sing-box/rules/tencent/tencent.yaml
+
 
       - name: Generate private
         run: |
