@@ -16,6 +16,9 @@ jobs:
       - name: Set variables
         run: |
           echo "update_version=$(date -d '+8 hours' +%Y-%m-%d)" >> ${GITHUB_ENV}
+          echo "tencent=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Tencent/Tencent.list" >> $GITHUB_ENV
+          echo "sina=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Sina/Sina.yaml" >> $GITHUB_ENV
+          echo "chinamedia=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/ChinaMedia/ChinaMedia.yaml" >> $GITHUB_ENV
           echo "ads=https://raw.githubusercontent.com/privacy-protection-tools/anti-AD/master/anti-ad-clash.yaml" >> $GITHUB_ENV
           echo "private1=https://raw.githubusercontent.com/v2fly/domain-list-community/master/data/private" >> $GITHUB_ENV
           echo "private2=https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Lan/Lan.list" >> $GITHUB_ENV
@@ -252,6 +255,49 @@ jobs:
           # Download sing-box rule_set
           echo 'payload:' > ./tmp/sing-box/rules/apple-cn/apple-cn.yaml
           curl -sSL ${apple_cn} | perl -ne '/^server=\/([^\/]+)\// && print "  - DOMAIN,$1\n"' >> ./tmp/sing-box/rules/apple-cn/apple-cn.yaml
+
+      - name: Generate tencent
+        run: |
+          mkdir -p ./tmp/sing-box/rules/tencent/
+          # Download clash geodata
+          curl -sSL ${tencent} | perl -ne '/^server=\/([^\/]+)\// && print "full:$1\n"' > ./community/mydata/tencent
+          # Download clash rule-set_yaml
+          echo 'payload:' > ./clash-ruleset/tencent.yaml
+          curl -sSL ${tencent} | perl -ne '/^server=\/([^\/]+)\// && print "  - '\''$1\n"' | sed "s/$/'/" >> ./clash-ruleset/tencent.yaml
+          # Download clash rule-set_text
+          curl -sSL ${tencent} | perl -ne '/^server=\/([^\/]+)\// && print "$1\n"' > ./clash-ruleset/tencent.list
+          # Download sing-box rule_set
+          echo 'payload:' > ./tmp/sing-box/rules/tencent/tencent.yaml
+          curl -sSL ${tencent} | perl -ne '/^server=\/([^\/]+)\// && print "  - DOMAIN,$1\n"' >> ./tmp/sing-box/rules/tencent/tencent.yaml
+
+      - name: Generate sina
+        run: |
+          mkdir -p ./tmp/sing-box/rules/sina/
+          # Download clash geodata
+          curl -sSL ${sina} | perl -ne '/^server=\/([^\/]+)\// && print "full:$1\n"' > ./community/mydata/sina
+          # Download clash rule-set_yaml
+          echo 'payload:' > ./clash-ruleset/sina.yaml
+          curl -sSL ${sina} | perl -ne '/^server=\/([^\/]+)\// && print "  - '\''$1\n"' | sed "s/$/'/" >> ./clash-ruleset/sina.yaml
+          # Download clash rule-set_text
+          curl -sSL ${sina} | perl -ne '/^server=\/([^\/]+)\// && print "$1\n"' > ./clash-ruleset/sina.list
+          # Download sing-box rule_set
+          echo 'payload:' > ./tmp/sing-box/rules/sina/sina.yaml
+          curl -sSL ${sina} | perl -ne '/^server=\/([^\/]+)\// && print "  - DOMAIN,$1\n"' >> ./tmp/sing-box/rules/sina/sina.yaml
+
+
+      - name: Generate chinamedia
+        run: |
+          mkdir -p ./tmp/sing-box/rules/chinamedia/
+          # Download clash geodata
+          curl -sSL ${chinamedia} | perl -ne '/^server=\/([^\/]+)\// && print "full:$1\n"' > ./community/mydata/chinamedia
+          # Download clash rule-set_yaml
+          echo 'payload:' > ./clash-ruleset/chinamedia.yaml
+          curl -sSL ${chinamedia} | perl -ne '/^server=\/([^\/]+)\// && print "  - '\''$1\n"' | sed "s/$/'/" >> ./clash-ruleset/chinamedia.yaml
+          # Download clash rule-set_text
+          curl -sSL ${chinamedia} | perl -ne '/^server=\/([^\/]+)\// && print "$1\n"' > ./clash-ruleset/chinamedia.list
+          # Download sing-box rule_set
+          echo 'payload:' > ./tmp/sing-box/rules/chinamedia/chinamedia.yaml
+          curl -sSL ${chinamedia} | perl -ne '/^server=\/([^\/]+)\// && print "  - DOMAIN,$1\n"' >> ./tmp/sing-box/rules/chinamedia/chinamedia.yaml
 
       - name: Generate google-cn
         run: |
